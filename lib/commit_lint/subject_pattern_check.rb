@@ -1,40 +1,45 @@
-def extractSubject(message)
-  return message[:subject].split(': ')[1] ||= message[:subject]
+def extract_subject(message)
+  message[:subject].split(': ')[1] ||= message[:subject]
 end
+
+# rubocop:disable Metrics/LineLength
 
 module Danger
   class DangerCommitLint < Plugin
-    # TODO: Split this checker to multiple checkers and then use self.type values to switch on / off
-    # Don't know about the commit
     class SubjectPatternCheck < CommitCheck # :nodoc:
+      DEFAULT_TYPES = %w[fix feat docs style refactor test chore].freeze
+
       def message
-        scope_option = @useScope ? '(<scope>)' : ''
+        scope_option = @use_scope ? '(<scope>)' : ''
         scope_required = ''
-        if @useScope
-          scope_required = "<scope> must be at least #{@minScope} characters#{@scopeRequired ? 'or ommitted' : ''}"
+        if @use_scope
+          scope_required = "\n<scope> must be at least #{@min_scope} characters#{@scope_required ? 'or ommitted' : ''}"
         end
-        "Please follow the commit format `<type>#{scope_option}: <subject>`.\n`<type>` must be one of #{@commitTypes.join ', '}".freeze
+        "Please follow the commit format `<type>#{scope_option}: <subject>`.#{scope_required}\n`<type>` must be one of #{@commit_types.join ', '}".freeze
       end
 
       def self.type
         :subject_pattern
       end
-      
+
       def initialize(message, config = {})
-        @commitTypes = config.fetch(:commit_types, [
-          'fix', 'feat', 'docs', 'style', 'refactor', 'test', 'chore'
-          ])
-        @useScope = config.fetch(:use_scope, true)
-        @minScope = config.fetch(:min_scope, 1)
-        @requireScope = config.fetch(:require_scope, false)
-        scopeRegex = @useScope ? "(\\([a-zA-Z0-9-]{#{@minScope},}\\)|\\(\\)#{@requireScope ? '' : '|'})" : ''
-        @regex_string = "^(#{@commitTypes.join '|'})#{scopeRegex}: .+$"
+        @commit_types = config.fetch(:commit_types, DEFAULT_TYPES)
+        @use_scope = config.fetch(:use_scope, true)
+        @min_scope = config.fetch(:min_scope, 1)
+        @require_scope = config.fetch(:require_scope, false)
+        scope_regex = ''
+        if @use_scope
+          scope_regex = "(\\([a-zA-Z0-9-]{#{@min_scope},}\\)|\\(\\)#{@require_scope ? '' : '|'})"
+        end
+        @regex_string = "^(#{@commit_types.join '|'})#{scope_regex}: .+$"
         @subject = message[:subject]
       end
 
       def fail?
-        (@subject =~ Regexp.new(@regex_string)) == nil
+        (@subject =~ Regexp.new(@regex_string)).nil?
       end
     end
   end
 end
+
+# rubocop:enable Metrics/LineLength

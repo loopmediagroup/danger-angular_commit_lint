@@ -4,9 +4,9 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'commit_lint/gem_version.rb'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'danger-commit_lint'
+  spec.name          = 'danger-angular_commit_lint'
   spec.version       = CommitLint::VERSION
-  spec.authors       = ['Jon Allured']
+  spec.authors       = ['Jon Allured', 'Simeon Cheeseman']
   spec.email         = ['jon.allured@gmail.com']
   spec.description   = 'A Danger Plugin that ensures nice and tidy commit messages.'
   spec.summary       = "A Danger Plugin that ensure commit messages are not too long, don't end in a period and have a line between subject and body"

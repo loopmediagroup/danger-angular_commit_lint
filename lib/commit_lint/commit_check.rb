@@ -4,7 +4,7 @@ module Danger
       def self.fail?(message, config)
         new(message, config).fail?
       end
-      
+
       def initialize(message, config = {}); end
 
       def fail?

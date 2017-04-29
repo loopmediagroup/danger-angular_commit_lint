@@ -3,14 +3,16 @@ require 'commit_lint/subject_pattern_check'
 module Danger
   class DangerCommitLint < Plugin
     class SubjectPeriodCheck < CommitCheck # :nodoc:
-      def message() 'Please remove period from end of commit subject line.'.freeze end
+      def message
+        'Please remove period from end of commit subject line.'.freeze
+      end
 
       def self.type
         :subject_period
       end
 
-      def initialize(message, config = {})
-        @subject = extractSubject(message)
+      def initialize(message, _config = {})
+        @subject = extract_subject(message)
       end
 
       def fail?

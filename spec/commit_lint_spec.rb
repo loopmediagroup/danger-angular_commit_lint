@@ -4,7 +4,7 @@ require File.expand_path('../spec_helper', __FILE__)
 
 TEST_MESSAGES = {
   subject_pattern: 'This subject is an incorrect pattern',
-  subject_cap: 'fix: this subject needs a capital',
+  subject_cap: 'fix(scope): this subject needs a capital',
   subject_words: 'fix: Fixed',
   subject_length: 'fix: This is a really long subject line and should result in an error',
   subject_period: 'fix: This subject line ends in a period.',
@@ -17,9 +17,7 @@ BLANK_MESSAGE = {
   subject: '',
   empty_line: '',
   sha: ''
-}
-
-# rubocop:enable Metrics/LineLength
+}.freeze
 
 def report_counts(status_report)
   status_report.values.flatten.count
@@ -114,7 +112,7 @@ module Danger
         end
       end
     end
-    
+
     describe 'pattern configuration' do
       let(:sha) { '1234567' }
       let(:commit) { double(:commit, message: message, sha: sha) }
@@ -127,8 +125,8 @@ module Danger
         commit_lint = testing_dangerfile.commit_lint
         commit = double(:commit, message: "fix: This is not fixed\n", sha: sha)
         allow(commit_lint.git).to receive(:commits).and_return([commit])
-        
-        config = {require_scope: true}
+
+        config = { require_scope: true }
         commit_lint.check config
 
         status_report = commit_lint.status_report
@@ -138,13 +136,13 @@ module Danger
           message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message)
         ]
       end
-      
+
       it 'does not use scope' do
         commit_lint = testing_dangerfile.commit_lint
         commit = double(:commit, message: "fix(scope): This is not fixed\n", sha: sha)
         allow(commit_lint.git).to receive(:commits).and_return([commit])
-        
-        config = {use_scope: false}
+
+        config = { use_scope: false }
         commit_lint.check config
 
         status_report = commit_lint.status_report
@@ -154,12 +152,12 @@ module Danger
           message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message)
         ]
       end
-      
+
       it 'has minimum length' do
         commit_lint = testing_dangerfile.commit_lint
         commit = double(:commit, message: "fix(scope): This is not fixed\n", sha: sha)
         allow(commit_lint.git).to receive(:commits).and_return([commit])
-        
+
         config = {
           min_scope: 8,
           require_scope: true
@@ -173,13 +171,13 @@ module Danger
           message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message)
         ]
       end
-      
+
       it 'restricts types' do
         commit_lint = testing_dangerfile.commit_lint
         commit = double(:commit, message: "chore: This is not valid\n", sha: sha)
         allow(commit_lint.git).to receive(:commits).and_return([commit])
-        
-        config = {commit_types: ['fix']}
+
+        config = { commit_types: ['fix'] }
         commit_lint.check config
 
         status_report = commit_lint.status_report
@@ -455,4 +453,5 @@ module Danger
   end
 end
 
+# rubocop:enable Metrics/LineLength
 # rubocop:enable Metrics/ClassLength

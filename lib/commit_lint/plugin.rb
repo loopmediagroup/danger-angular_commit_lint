@@ -67,18 +67,25 @@ module Danger
 
     def check_messages
       for message in messages
-        for klass in warning_checkers
-          klass_instance = klass.new(message, @config)
-          if klass_instance.fail?
-            issue_warning(klass_instance.message(), message[:sha])
-          end
-        end
+        check_warnings message
+        check_fails message
+      end
+    end
 
-        for klass in failing_checkers
-          klass_instance = klass.new(message, @config)
-          if klass_instance.fail?
-            issue_failure(klass_instance.message(), message[:sha])
-          end
+    def check_warnings(message)
+      for klass in warning_checkers
+        klass_instance = klass.new(message, @config)
+        if klass_instance.fail?
+          issue_warning(klass_instance.message, message[:sha])
+        end
+      end
+    end
+
+    def check_fails(message)
+      for klass in failing_checkers
+        klass_instance = klass.new(message, @config)
+        if klass_instance.fail?
+          issue_failure(klass_instance.message, message[:sha])
         end
       end
     end
