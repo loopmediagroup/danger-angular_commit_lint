@@ -25,11 +25,12 @@ commit_lint.check
 
 That will check each commit in the PR to ensure the following is true:
 
-* Commit subject begins with a capital letter (`subject_cap`)
-* Commit subject is more than one word (`subject_word`)
-* Commit subject is no longer than 50 characters (`subject_length`)
-* Commit subject does not end in a period (`subject_period`)
-* Commit subject and body are separated by an empty line (`empty_line`)
+* Commit subject follows the angular pattern of `<type>(<scope>): <subject>`
+* Commit <subject> begins with a capital letter (`subject_cap`)
+* Commit <subject> is more than one word (`subject_word`)
+* Commit <subject> is no longer than 50 characters (`subject_length`)
+* Commit <subject> does not end in a period (`subject_period`)
+* Commit <subject> and body are separated by an empty line (`empty_line`)
 
 By default, Commit Lint fails, but you can configure this behavior.
 
