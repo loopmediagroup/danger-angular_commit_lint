@@ -1,20 +1,18 @@
-# Commit Lint for Danger
+# AngularJS Format Commit Lint for Danger
 
-[![Build Status](https://travis-ci.org/jonallured/danger-commit_lint.svg?branch=master)](https://travis-ci.org/jonallured/danger-commit_lint)
+[![Build Status](https://travis-ci.org/jonallured/danger-angular_commit_lint.svg?branch=master)](https://travis-ci.org/simeonc/danger-angular_commit_lint)
 
-This is a [Danger Plugin][danger] that ensures nice and tidy commit messages.
-The checks performed on each commit message are inspired by [Tim Pope's blog
-post][tpope] on good commit messages, echoed by [git's own documentation][book]
-on the subject.
+This is a [Danger Plugin][danger] that ensures nice and tidy commit messages. It is based off [https://github.com/jnallured/danger-commit_lint].
+The checks performed on each commit message are inspired by [Angular Commit Format][angular] in use by [standard-version][standard].
 
-[danger]: http://danger.systems/plugins/commit_lint.html
-[tpope]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
-[book]: https://www.git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines
+[danger]: http://danger.systems/plugins
+[angular]: https://gist.github.com/stephenparish/9941e89d80e2bc58a153#allowed-type
+[standard]: https://github.com/conventional-changelog/standard-version
 
 ## Installation
 
 ```
-$ gem install danger-commit_lint
+$ gem install danger-angular_commit_lint
 ```
 
 ## Usage

@@ -1,4 +1,5 @@
 require 'commit_lint/commit_check'
+require 'commit_lint/subject_pattern_check'
 require 'commit_lint/subject_cap_check'
 require 'commit_lint/subject_words_check'
 require 'commit_lint/subject_length_check'

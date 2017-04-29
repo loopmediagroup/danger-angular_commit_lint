@@ -1,3 +1,5 @@
+require 'commit_lint/subject_pattern_check'
+
 module Danger
   class DangerCommitLint < Plugin
     class SubjectCapCheck < CommitCheck # :nodoc:
@@ -8,7 +10,7 @@ module Danger
       end
 
       def initialize(message)
-        @first_character = message[:subject].split('').first
+        @first_character = extractSubject(message).split('').first
       end
 
       def fail?
