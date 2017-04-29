@@ -47,6 +47,16 @@ To each of these keys you can pass either the symbol `:all` or an array of
 checks. Here are some ways you could configure Commit Lint:
 
 ```ruby
+# configure how you want your commits to be formatted
+commit_lint.check {
+  commit_types => ['fix', 'feat'], # an array of types that are accepted, all others give an error
+  use_scope => true, # whether you use `(<scope>)` or not
+  require_scope => false, # if use_scope is true then this makes the scope optional if true
+  min_scope => 1 # minimum length of the `<scope>`
+}
+```
+
+```ruby
 # warn on all checks (instead of failing)
 commit_lint.check warn: :all
 

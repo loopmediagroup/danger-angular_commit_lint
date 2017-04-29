@@ -68,11 +68,17 @@ module Danger
     def check_messages
       for message in messages
         for klass in warning_checkers
-          issue_warning(klass::MESSAGE, message[:sha]) if klass.fail? message
+          klass_instance = klass.new(message, @config)
+          if klass_instance.fail?
+            issue_warning(klass_instance.message(), message[:sha])
+          end
         end
 
         for klass in failing_checkers
-          issue_failure(klass::MESSAGE, message[:sha]) if klass.fail? message
+          klass_instance = klass.new(message, @config)
+          if klass_instance.fail?
+            issue_failure(klass_instance.message(), message[:sha])
+          end
         end
       end
     end

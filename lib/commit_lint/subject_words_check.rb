@@ -3,13 +3,13 @@ require 'commit_lint/subject_pattern_check'
 module Danger
   class DangerCommitLint < Plugin
     class SubjectWordsCheck < CommitCheck # :nodoc:
-      MESSAGE = 'Please use more than one word.'.freeze
+      def message() 'Please use more than one word.'.freeze end
 
       def self.type
         :subject_words
       end
 
-      def initialize(message)
+      def initialize(message, config = {})
         @subject = extractSubject(message)
       end
 

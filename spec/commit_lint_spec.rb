@@ -4,8 +4,6 @@ require File.expand_path('../spec_helper', __FILE__)
 
 TEST_MESSAGES = {
   subject_pattern: 'This subject is an incorrect pattern',
-  subject_patternB: 'nothing(): This subject is an incorrect pattern',
-  subject_patternC: 'fix(a): This subject is an incorrect pattern',
   subject_cap: 'fix: this subject needs a capital',
   subject_words: 'fix: Fixed',
   subject_length: 'fix: This is a really long subject line and should result in an error',
@@ -14,6 +12,12 @@ TEST_MESSAGES = {
   all_errors: "this is a really long subject and it even ends in a period.\nNot to mention the missing empty line!",
   valid:  "fix: This is a valid message\n\nYou can tell because it meets all the criteria and the linter does not complain."
 }.freeze
+
+BLANK_MESSAGE = {
+  subject: '',
+  empty_line: '',
+  sha: ''
+}
 
 # rubocop:enable Metrics/LineLength
 
@@ -42,17 +46,15 @@ module Danger
       context 'with invalid messages' do
         it 'fails those checks' do
           checks = {
-            subject_pattern: SubjectPatternCheck::MESSAGE,
-            subject_patternB: SubjectPatternCheck::MESSAGE,
-            subject_patternC: SubjectPatternCheck::MESSAGE,
-            subject_cap: SubjectCapCheck::MESSAGE,
-            subject_words: SubjectWordsCheck::MESSAGE,
-            subject_length: SubjectLengthCheck::MESSAGE,
-            subject_period: SubjectPeriodCheck::MESSAGE,
-            empty_line: EmptyLineCheck::MESSAGE
+            subject_pattern: SubjectPatternCheck,
+            subject_cap: SubjectCapCheck,
+            subject_words: SubjectWordsCheck,
+            subject_length: SubjectLengthCheck,
+            subject_period: SubjectPeriodCheck,
+            empty_line: EmptyLineCheck
           }
 
-          for (check, warning) in checks
+          for (check, warning_class) in checks
             commit_lint = testing_dangerfile.commit_lint
             commit = double(:commit, message: TEST_MESSAGES[check], sha: sha)
             allow(commit_lint.git).to receive(:commits).and_return([commit])
@@ -61,9 +63,9 @@ module Danger
 
             status_report = commit_lint.status_report
 
-            expect(report_counts(status_report)).to eq 1
+            expect(report_counts(status_report)).to eq(1), "No error for #{check}"
             expect(status_report[:errors]).to eq [
-              message_with_sha(warning)
+              message_with_sha(warning_class.new(BLANK_MESSAGE).message)
             ]
           end
         end
@@ -81,11 +83,11 @@ module Danger
           status_report = commit_lint.status_report
           expect(report_counts(status_report)).to eq 5
           expect(status_report[:errors]).to eq [
-            message_with_sha(SubjectPatternCheck::MESSAGE),
-            message_with_sha(SubjectCapCheck::MESSAGE),
-            message_with_sha(SubjectLengthCheck::MESSAGE),
-            message_with_sha(SubjectPeriodCheck::MESSAGE),
-            message_with_sha(EmptyLineCheck::MESSAGE)
+            message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE).message),
+            message_with_sha(SubjectCapCheck.new(BLANK_MESSAGE).message),
+            message_with_sha(SubjectLengthCheck.new(BLANK_MESSAGE).message),
+            message_with_sha(SubjectPeriodCheck.new(BLANK_MESSAGE).message),
+            message_with_sha(EmptyLineCheck.new(BLANK_MESSAGE).message)
           ]
         end
       end
@@ -95,9 +97,9 @@ module Danger
 
         it 'does nothing' do
           checks = {
-            subject_length: SubjectLengthCheck::MESSAGE,
-            subject_period: SubjectPeriodCheck::MESSAGE,
-            empty_line: EmptyLineCheck::MESSAGE
+            subject_length: SubjectLengthCheck,
+            subject_period: SubjectPeriodCheck,
+            empty_line: EmptyLineCheck
           }
 
           for _ in checks
@@ -110,6 +112,82 @@ module Danger
             expect(report_counts(status_report)).to eq 0
           end
         end
+      end
+    end
+    
+    describe 'pattern configuration' do
+      let(:sha) { '1234567' }
+      let(:commit) { double(:commit, message: message, sha: sha) }
+
+      def message_with_sha(message)
+        [message, sha].join "\n"
+      end
+
+      it 'requires scope' do
+        commit_lint = testing_dangerfile.commit_lint
+        commit = double(:commit, message: "fix: This is not fixed\n", sha: sha)
+        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        
+        config = {require_scope: true}
+        commit_lint.check config
+
+        status_report = commit_lint.status_report
+
+        expect(report_counts(status_report)).to eq 1
+        expect(status_report[:errors]).to eq [
+          message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message)
+        ]
+      end
+      
+      it 'does not use scope' do
+        commit_lint = testing_dangerfile.commit_lint
+        commit = double(:commit, message: "fix(scope): This is not fixed\n", sha: sha)
+        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        
+        config = {use_scope: false}
+        commit_lint.check config
+
+        status_report = commit_lint.status_report
+
+        expect(report_counts(status_report)).to eq 1
+        expect(status_report[:errors]).to eq [
+          message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message)
+        ]
+      end
+      
+      it 'has minimum length' do
+        commit_lint = testing_dangerfile.commit_lint
+        commit = double(:commit, message: "fix(scope): This is not fixed\n", sha: sha)
+        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        
+        config = {
+          min_scope: 8,
+          require_scope: true
+        }
+        commit_lint.check config
+
+        status_report = commit_lint.status_report
+
+        expect(report_counts(status_report)).to eq 1
+        expect(status_report[:errors]).to eq [
+          message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message)
+        ]
+      end
+      
+      it 'restricts types' do
+        commit_lint = testing_dangerfile.commit_lint
+        commit = double(:commit, message: "chore: This is not valid\n", sha: sha)
+        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        
+        config = {commit_types: ['fix']}
+        commit_lint.check config
+
+        status_report = commit_lint.status_report
+
+        expect(report_counts(status_report)).to eq 1
+        expect(status_report[:errors]).to eq [
+          message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message)
+        ]
       end
     end
 
@@ -125,9 +203,9 @@ module Danger
         context 'with invalid messages' do
           it 'does nothing' do
             checks = {
-              subject_length: SubjectLengthCheck::MESSAGE,
-              subject_period: SubjectPeriodCheck::MESSAGE,
-              empty_line: EmptyLineCheck::MESSAGE
+              subject_length: SubjectLengthCheck,
+              subject_period: SubjectPeriodCheck,
+              empty_line: EmptyLineCheck
             }
 
             for (check, _) in checks
@@ -195,22 +273,23 @@ module Danger
         context 'with invalid messages' do
           it 'warns instead of failing' do
             checks = {
-              subject_length: SubjectLengthCheck::MESSAGE,
-              subject_period: SubjectPeriodCheck::MESSAGE,
-              empty_line: EmptyLineCheck::MESSAGE
+              subject_length: SubjectLengthCheck,
+              subject_period: SubjectPeriodCheck,
+              empty_line: EmptyLineCheck
             }
 
-            for (check, warning) in checks
+            for (check, warning_class) in checks
               commit_lint = testing_dangerfile.commit_lint
               commit = double(:commit, message: TEST_MESSAGES[check], sha: sha)
               allow(commit_lint.git).to receive(:commits).and_return([commit])
 
-              commit_lint.check warn: [check]
+              config = { warn: [check] }
+              commit_lint.check config
 
               status_report = commit_lint.status_report
               expect(report_counts(status_report)).to eq 1
               expect(status_report[:warnings]).to eq [
-                message_with_sha(warning)
+                message_with_sha(warning_class.new(BLANK_MESSAGE, warn: [check]).message)
               ]
             end
           end
@@ -221,9 +300,9 @@ module Danger
 
           it 'does nothing' do
             checks = {
-              subject_length: SubjectLengthCheck::MESSAGE,
-              subject_period: SubjectPeriodCheck::MESSAGE,
-              empty_line: EmptyLineCheck::MESSAGE
+              subject_length: SubjectLengthCheck,
+              subject_period: SubjectPeriodCheck,
+              empty_line: EmptyLineCheck
             }
 
             for (check, _) in checks
@@ -247,16 +326,17 @@ module Danger
             commit_lint = testing_dangerfile.commit_lint
             allow(commit_lint.git).to receive(:commits).and_return([commit])
 
-            commit_lint.check warn: :all
+            config = { warn: :all }
+            commit_lint.check config
 
             status_report = commit_lint.status_report
             expect(report_counts(status_report)).to eq 5
             expect(status_report[:warnings]).to eq [
-              message_with_sha(SubjectPatternCheck::MESSAGE),
-              message_with_sha(SubjectCapCheck::MESSAGE),
-              message_with_sha(SubjectLengthCheck::MESSAGE),
-              message_with_sha(SubjectPeriodCheck::MESSAGE),
-              message_with_sha(EmptyLineCheck::MESSAGE)
+              message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(SubjectCapCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(SubjectLengthCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(SubjectPeriodCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(EmptyLineCheck.new(BLANK_MESSAGE, config).message)
             ]
           end
         end
@@ -289,22 +369,23 @@ module Danger
         context 'with invalid messages' do
           it 'fails those checks' do
             checks = {
-              subject_length: SubjectLengthCheck::MESSAGE,
-              subject_period: SubjectPeriodCheck::MESSAGE,
-              empty_line: EmptyLineCheck::MESSAGE
+              subject_length: SubjectLengthCheck,
+              subject_period: SubjectPeriodCheck,
+              empty_line: EmptyLineCheck
             }
 
-            for (check, warning) in checks
+            for (check, warning_class) in checks
               commit_lint = testing_dangerfile.commit_lint
               commit = double(:commit, message: TEST_MESSAGES[check], sha: sha)
               allow(commit_lint.git).to receive(:commits).and_return([commit])
 
-              commit_lint.check fail: [check]
+              config = { fail: [check] }
+              commit_lint.check config
 
               status_report = commit_lint.status_report
               expect(report_counts(status_report)).to eq 1
               expect(status_report[:errors]).to eq [
-                message_with_sha(warning)
+                message_with_sha(warning_class.new(BLANK_MESSAGE, config).message)
               ]
             end
           end
@@ -315,9 +396,9 @@ module Danger
 
           it 'does nothing' do
             checks = {
-              subject_length: SubjectLengthCheck::MESSAGE,
-              subject_period: SubjectPeriodCheck::MESSAGE,
-              empty_line: EmptyLineCheck::MESSAGE
+              subject_length: SubjectLengthCheck,
+              subject_period: SubjectPeriodCheck,
+              empty_line: EmptyLineCheck
             }
 
             for (check, _) in checks
@@ -341,16 +422,17 @@ module Danger
             commit_lint = testing_dangerfile.commit_lint
             allow(commit_lint.git).to receive(:commits).and_return([commit])
 
-            commit_lint.check fail: :all
+            config = { fail: :all }
+            commit_lint.check config
 
             status_report = commit_lint.status_report
             expect(report_counts(status_report)).to eq 5
             expect(status_report[:errors]).to eq [
-              message_with_sha(SubjectPatternCheck::MESSAGE),
-              message_with_sha(SubjectCapCheck::MESSAGE),
-              message_with_sha(SubjectLengthCheck::MESSAGE),
-              message_with_sha(SubjectPeriodCheck::MESSAGE),
-              message_with_sha(EmptyLineCheck::MESSAGE)
+              message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(SubjectCapCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(SubjectLengthCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(SubjectPeriodCheck.new(BLANK_MESSAGE, config).message),
+              message_with_sha(EmptyLineCheck.new(BLANK_MESSAGE, config).message)
             ]
           end
         end
