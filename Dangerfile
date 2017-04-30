@@ -1,1 +1,1 @@
-commit_lint.check
+angular_commit_lint.check

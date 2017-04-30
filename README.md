@@ -20,7 +20,7 @@ $ gem install danger-angular_commit_lint
 Simply add this to your Dangerfile:
 
 ```ruby
-commit_lint.check
+angular_commit_lint.check
 ```
 
 That will check each commit in the PR to ensure the following is true:
@@ -48,7 +48,7 @@ checks. Here are some ways you could configure Commit Lint:
 
 ```ruby
 # configure how you want your commits to be formatted
-commit_lint.check {
+angular_commit_lint.check {
   commit_types => ['fix', 'feat'], # an array of types that are accepted, all others give an error
   use_scope => true, # whether you use `(<scope>)` or not
   require_scope => false, # if use_scope is true then this makes the scope optional if true
@@ -58,23 +58,23 @@ commit_lint.check {
 
 ```ruby
 # warn on all checks (instead of failing)
-commit_lint.check warn: :all
+angular_commit_lint.check warn: :all
 
 # disable the `subject_period` check
-commit_lint.check disable: [:subject_period]
+angular_commit_lint.check disable: [:subject_period]
 ```
 
 Remember, by default all checks are run and they will fail. Think of this as the
 default:
 
 ```ruby
-commit_lint.check fail: :all
+angular_commit_lint.check fail: :all
 ```
 
 Also note that there is one more way that Commit Lint can behave:
 
 ```ruby
-commit_lint.check disable: :all
+angular_commit_lint.check disable: :all
 ```
 
 This will actually throw a warning that Commit Lint isn't doing anything.

@@ -5,7 +5,7 @@ end
 # rubocop:disable Metrics/LineLength
 
 module Danger
-  class DangerCommitLint < Plugin
+  class DangerAngularCommitLint < Plugin
     class SubjectPatternCheck < CommitCheck # :nodoc:
       DEFAULT_TYPES = %w[fix feat docs style refactor test chore].freeze
 

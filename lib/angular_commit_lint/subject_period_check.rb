@@ -1,7 +1,7 @@
-require 'commit_lint/subject_pattern_check'
+require 'angular_commit_lint/subject_pattern_check'
 
 module Danger
-  class DangerCommitLint < Plugin
+  class DangerAngularCommitLint < Plugin
     class SubjectPeriodCheck < CommitCheck # :nodoc:
       def message
         'Please remove period from end of commit subject line.'.freeze

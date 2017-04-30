@@ -1,7 +1,7 @@
-require 'commit_lint/subject_pattern_check'
+require 'angular_commit_lint/subject_pattern_check'
 
 module Danger
-  class DangerCommitLint < Plugin
+  class DangerAngularCommitLint < Plugin
     class SubjectWordsCheck < CommitCheck # :nodoc:
       def message
         'Please use more than one word.'.freeze

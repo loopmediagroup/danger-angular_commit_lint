@@ -15,20 +15,20 @@ module Danger
   #
   # @example Lint all commits using defaults
   #
-  #          commit_lint.check
+  #          angular_commit_lint.check
   #
   # @example Warn instead of fail
   #
-  #          commit_lint.check warn: :all
+  #          angular_commit_lint.check warn: :all
   #
   # @example Disable a particular check
   #
-  #          commit_lint.check disable: [:subject_period]
+  #          angular_commit_lint.check disable: [:subject_period]
   #
   # @see danger/danger
   # @tags commit linting
   #
-  class DangerCommitLint < Plugin
+  class DangerAngularCommitLint < Plugin
     NOOP_MESSAGE = 'All checks were disabled, nothing to do.'.freeze
 
     # Checks the commits with whatever config the user passes.

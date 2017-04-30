@@ -1,5 +1,5 @@
 module Danger
-  class DangerCommitLint < Plugin
+  class DangerAngularCommitLint < Plugin
     class EmptyLineCheck < CommitCheck # :nodoc:
       def message
         'Please separate subject from body with newline.'.freeze

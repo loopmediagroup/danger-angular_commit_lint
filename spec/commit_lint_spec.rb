@@ -26,10 +26,10 @@ end
 # rubocop:disable Metrics/ClassLength
 
 module Danger
-  class DangerCommitLint
-    describe 'DangerCommitLint' do
+  class DangerAngularCommitLint
+    describe 'DangerAngularCommitLint' do
       it 'should be a plugin' do
-        expect(Danger::DangerCommitLint.new(nil)).to be_a Danger::Plugin
+        expect(Danger::DangerAngularCommitLint.new(nil)).to be_a Danger::Plugin
       end
     end
 
@@ -53,13 +53,13 @@ module Danger
           }
 
           for (check, warning_class) in checks
-            commit_lint = testing_dangerfile.commit_lint
+            angular_commit_lint = testing_dangerfile.angular_commit_lint
             commit = double(:commit, message: TEST_MESSAGES[check], sha: sha)
-            allow(commit_lint.git).to receive(:commits).and_return([commit])
+            allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-            commit_lint.check
+            angular_commit_lint.check
 
-            status_report = commit_lint.status_report
+            status_report = angular_commit_lint.status_report
 
             expect(report_counts(status_report)).to eq(1), "No error for #{check}"
             expect(status_report[:errors]).to eq [
@@ -73,12 +73,12 @@ module Danger
         let(:message) { TEST_MESSAGES[:all_errors] }
 
         it 'fails every check' do
-          commit_lint = testing_dangerfile.commit_lint
-          allow(commit_lint.git).to receive(:commits).and_return([commit])
+          angular_commit_lint = testing_dangerfile.angular_commit_lint
+          allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-          commit_lint.check
+          angular_commit_lint.check
 
-          status_report = commit_lint.status_report
+          status_report = angular_commit_lint.status_report
           expect(report_counts(status_report)).to eq 5
           expect(status_report[:errors]).to eq [
             message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE).message),
@@ -101,12 +101,12 @@ module Danger
           }
 
           for _ in checks
-            commit_lint = testing_dangerfile.commit_lint
-            allow(commit_lint.git).to receive(:commits).and_return([commit])
+            angular_commit_lint = testing_dangerfile.angular_commit_lint
+            allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-            commit_lint.check
+            angular_commit_lint.check
 
-            status_report = commit_lint.status_report
+            status_report = angular_commit_lint.status_report
             expect(report_counts(status_report)).to eq 0
           end
         end
@@ -122,14 +122,14 @@ module Danger
       end
 
       it 'requires scope' do
-        commit_lint = testing_dangerfile.commit_lint
+        angular_commit_lint = testing_dangerfile.angular_commit_lint
         commit = double(:commit, message: "fix: This is not fixed\n", sha: sha)
-        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
         config = { require_scope: true }
-        commit_lint.check config
+        angular_commit_lint.check config
 
-        status_report = commit_lint.status_report
+        status_report = angular_commit_lint.status_report
 
         expect(report_counts(status_report)).to eq 1
         expect(status_report[:errors]).to eq [
@@ -138,14 +138,14 @@ module Danger
       end
 
       it 'does not use scope' do
-        commit_lint = testing_dangerfile.commit_lint
+        angular_commit_lint = testing_dangerfile.angular_commit_lint
         commit = double(:commit, message: "fix(scope): This is not fixed\n", sha: sha)
-        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
         config = { use_scope: false }
-        commit_lint.check config
+        angular_commit_lint.check config
 
-        status_report = commit_lint.status_report
+        status_report = angular_commit_lint.status_report
 
         expect(report_counts(status_report)).to eq 1
         expect(status_report[:errors]).to eq [
@@ -154,17 +154,17 @@ module Danger
       end
 
       it 'has minimum length' do
-        commit_lint = testing_dangerfile.commit_lint
+        angular_commit_lint = testing_dangerfile.angular_commit_lint
         commit = double(:commit, message: "fix(scope): This is not fixed\n", sha: sha)
-        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
         config = {
           min_scope: 8,
           require_scope: true
         }
-        commit_lint.check config
+        angular_commit_lint.check config
 
-        status_report = commit_lint.status_report
+        status_report = angular_commit_lint.status_report
 
         expect(report_counts(status_report)).to eq 1
         expect(status_report[:errors]).to eq [
@@ -173,14 +173,14 @@ module Danger
       end
 
       it 'restricts types' do
-        commit_lint = testing_dangerfile.commit_lint
+        angular_commit_lint = testing_dangerfile.angular_commit_lint
         commit = double(:commit, message: "chore: This is not valid\n", sha: sha)
-        allow(commit_lint.git).to receive(:commits).and_return([commit])
+        allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
         config = { commit_types: ['fix'] }
-        commit_lint.check config
+        angular_commit_lint.check config
 
-        status_report = commit_lint.status_report
+        status_report = angular_commit_lint.status_report
 
         expect(report_counts(status_report)).to eq 1
         expect(status_report[:errors]).to eq [
@@ -207,13 +207,13 @@ module Danger
             }
 
             for (check, _) in checks
-              commit_lint = testing_dangerfile.commit_lint
+              angular_commit_lint = testing_dangerfile.angular_commit_lint
               commit = double(:commit, message: TEST_MESSAGES[check], sha: sha)
-              allow(commit_lint.git).to receive(:commits).and_return([commit])
+              allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-              commit_lint.check disable: [check]
+              angular_commit_lint.check disable: [check]
 
-              status_report = commit_lint.status_report
+              status_report = angular_commit_lint.status_report
               expect(report_counts(status_report)).to eq 0
             end
           end
@@ -224,8 +224,8 @@ module Danger
         let(:message) { TEST_MESSAGES[:all_errors] }
 
         it 'warns that nothing was checked' do
-          commit_lint = testing_dangerfile.commit_lint
-          allow(commit_lint.git).to receive(:commits).and_return([commit])
+          angular_commit_lint = testing_dangerfile.angular_commit_lint
+          allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
           all_checks = %i[
             subject_pattern
@@ -235,9 +235,9 @@ module Danger
             subject_period
             empty_line
           ]
-          commit_lint.check disable: all_checks
+          angular_commit_lint.check disable: all_checks
 
-          status_report = commit_lint.status_report
+          status_report = angular_commit_lint.status_report
           expect(report_counts(status_report)).to eq 1
           expect(status_report[:warnings]).to eq [NOOP_MESSAGE]
         end
@@ -247,12 +247,12 @@ module Danger
         let(:message) { TEST_MESSAGES[:all_errors] }
 
         it 'warns that nothing was checked' do
-          commit_lint = testing_dangerfile.commit_lint
-          allow(commit_lint.git).to receive(:commits).and_return([commit])
+          angular_commit_lint = testing_dangerfile.angular_commit_lint
+          allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-          commit_lint.check disable: :all
+          angular_commit_lint.check disable: :all
 
-          status_report = commit_lint.status_report
+          status_report = angular_commit_lint.status_report
           expect(report_counts(status_report)).to eq 1
           expect(status_report[:warnings]).to eq [NOOP_MESSAGE]
         end
@@ -277,14 +277,14 @@ module Danger
             }
 
             for (check, warning_class) in checks
-              commit_lint = testing_dangerfile.commit_lint
+              angular_commit_lint = testing_dangerfile.angular_commit_lint
               commit = double(:commit, message: TEST_MESSAGES[check], sha: sha)
-              allow(commit_lint.git).to receive(:commits).and_return([commit])
+              allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
               config = { warn: [check] }
-              commit_lint.check config
+              angular_commit_lint.check config
 
-              status_report = commit_lint.status_report
+              status_report = angular_commit_lint.status_report
               expect(report_counts(status_report)).to eq 1
               expect(status_report[:warnings]).to eq [
                 message_with_sha(warning_class.new(BLANK_MESSAGE, warn: [check]).message)
@@ -304,12 +304,12 @@ module Danger
             }
 
             for (check, _) in checks
-              commit_lint = testing_dangerfile.commit_lint
-              allow(commit_lint.git).to receive(:commits).and_return([commit])
+              angular_commit_lint = testing_dangerfile.angular_commit_lint
+              allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-              commit_lint.check warn: [check]
+              angular_commit_lint.check warn: [check]
 
-              status_report = commit_lint.status_report
+              status_report = angular_commit_lint.status_report
               expect(report_counts(status_report)).to eq 0
             end
           end
@@ -321,13 +321,13 @@ module Danger
           let(:message) { TEST_MESSAGES[:all_errors] }
 
           it 'warns instead of failing' do
-            commit_lint = testing_dangerfile.commit_lint
-            allow(commit_lint.git).to receive(:commits).and_return([commit])
+            angular_commit_lint = testing_dangerfile.angular_commit_lint
+            allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
             config = { warn: :all }
-            commit_lint.check config
+            angular_commit_lint.check config
 
-            status_report = commit_lint.status_report
+            status_report = angular_commit_lint.status_report
             expect(report_counts(status_report)).to eq 5
             expect(status_report[:warnings]).to eq [
               message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message),
@@ -343,12 +343,12 @@ module Danger
           let(:message) { TEST_MESSAGES[:valid] }
 
           it 'does nothing' do
-            commit_lint = testing_dangerfile.commit_lint
-            allow(commit_lint.git).to receive(:commits).and_return([commit])
+            angular_commit_lint = testing_dangerfile.angular_commit_lint
+            allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-            commit_lint.check warn: :all
+            angular_commit_lint.check warn: :all
 
-            status_report = commit_lint.status_report
+            status_report = angular_commit_lint.status_report
             expect(report_counts(status_report)).to eq 0
           end
         end
@@ -373,14 +373,14 @@ module Danger
             }
 
             for (check, warning_class) in checks
-              commit_lint = testing_dangerfile.commit_lint
+              angular_commit_lint = testing_dangerfile.angular_commit_lint
               commit = double(:commit, message: TEST_MESSAGES[check], sha: sha)
-              allow(commit_lint.git).to receive(:commits).and_return([commit])
+              allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
               config = { fail: [check] }
-              commit_lint.check config
+              angular_commit_lint.check config
 
-              status_report = commit_lint.status_report
+              status_report = angular_commit_lint.status_report
               expect(report_counts(status_report)).to eq 1
               expect(status_report[:errors]).to eq [
                 message_with_sha(warning_class.new(BLANK_MESSAGE, config).message)
@@ -400,12 +400,12 @@ module Danger
             }
 
             for (check, _) in checks
-              commit_lint = testing_dangerfile.commit_lint
-              allow(commit_lint.git).to receive(:commits).and_return([commit])
+              angular_commit_lint = testing_dangerfile.angular_commit_lint
+              allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-              commit_lint.check fail: [check]
+              angular_commit_lint.check fail: [check]
 
-              status_report = commit_lint.status_report
+              status_report = angular_commit_lint.status_report
               expect(report_counts(status_report)).to eq 0
             end
           end
@@ -417,13 +417,13 @@ module Danger
           let(:message) { TEST_MESSAGES[:all_errors] }
 
           it 'fails those checks' do
-            commit_lint = testing_dangerfile.commit_lint
-            allow(commit_lint.git).to receive(:commits).and_return([commit])
+            angular_commit_lint = testing_dangerfile.angular_commit_lint
+            allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
             config = { fail: :all }
-            commit_lint.check config
+            angular_commit_lint.check config
 
-            status_report = commit_lint.status_report
+            status_report = angular_commit_lint.status_report
             expect(report_counts(status_report)).to eq 5
             expect(status_report[:errors]).to eq [
               message_with_sha(SubjectPatternCheck.new(BLANK_MESSAGE, config).message),
@@ -439,12 +439,12 @@ module Danger
           let(:message) { TEST_MESSAGES[:valid] }
 
           it 'does nothing' do
-            commit_lint = testing_dangerfile.commit_lint
-            allow(commit_lint.git).to receive(:commits).and_return([commit])
+            angular_commit_lint = testing_dangerfile.angular_commit_lint
+            allow(angular_commit_lint.git).to receive(:commits).and_return([commit])
 
-            commit_lint.check fail: :all
+            angular_commit_lint.check fail: :all
 
-            status_report = commit_lint.status_report
+            status_report = angular_commit_lint.status_report
             expect(report_counts(status_report)).to eq 0
           end
         end

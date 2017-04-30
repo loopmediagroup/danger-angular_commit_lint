@@ -1,5 +1,5 @@
 module Danger
-  class DangerCommitLint < Plugin
+  class DangerAngularCommitLint < Plugin
     class CommitCheck # :nodoc:
       def self.fail?(message, config)
         new(message, config).fail?
