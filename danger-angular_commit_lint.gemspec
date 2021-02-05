@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['jon.allured@gmail.com']
   spec.description   = 'A Danger Plugin that ensures nice and tidy commit messages.'
   spec.summary       = "A Danger Plugin that ensure commit messages follow the angular commit pattern, are not too long, don't end in a period and have a line between subject and body"
-  spec.homepage      = 'https://github.com/simeonc/danger-angular_commit_lint'
+  spec.homepage      = 'https://github.com/loopmediagroup/danger-angular_commit_lint'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)
@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'danger', '~> 5.0'
+  spec.add_runtime_dependency 'danger', '~> 7.0'
 
   spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'rake'
